@@ -4,11 +4,29 @@ exports.getDefaultRoute = (req, res) =>{
     res.render('login', {data: null});
 };
 
+exports.getAddDrinkRoute =(req, res) =>{
+    if(req.session.isLoggedIn == true) {
+        const querySQL = `SELECT * FROM ingredient`;
+
+        db.query(querySQL, (err, rows) => {
+            if (err) {
+                console.log(err);
+                res.status(500).send("Internal Server Error");
+                return;
+            }
+            console.log(rows);
+            res.render('addDrink', { data: rows, role: req.session.role });
+        });
+    } else {
+        res.render('login', {error: 'You must first log in'});
+    }
+};
+
 exports.getCabinetRoute = (req, res) => {
     if(req.session.isLoggedIn == true) {
         const selectSQL = `SELECT ingredientName FROM user 
-                           INNER JOIN useringredients ON user.userID = useringredients.userID 
-                           INNER JOIN ingredient ON useringredients.ingredientID = ingredient.ingredientID`;
+                           INNER JOIN useringredient ON user.userID = useringredient.userID 
+                           INNER JOIN ingredient ON useringredient.ingredientID = ingredient.ingredientID`;
 
         db.query(selectSQL, (err, rows) => {
             if (err) {
@@ -20,9 +38,13 @@ exports.getCabinetRoute = (req, res) => {
             res.render('cabinet', { data: rows, role: req.session.role });
         });
     } else {
-        res.render('login', {error: 'You must first log in'});
+        res.render('cabinet', {error: 'You must first log in'});
     }
 };
+
+// exports.getCabinetRoute =(req, res) => {
+//     res.render('cabinet');
+// };
 
 exports.getRegisterRoute =(req, res) => {
     res.render('register');
