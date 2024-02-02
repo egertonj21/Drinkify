@@ -24,6 +24,10 @@ exports.getCabinetRoute = (req, res) => {
     }
 };
 
+exports.getRegisterRoute =(req, res) => {
+    res.render('register');
+};
+
 exports.getLoginRoute = (req, res) => { // Corrected route definition
     res.render('login', {error: ''});
 };
@@ -51,4 +55,22 @@ exports.postLoginRoute = (req, res) => { // Corrected route definition
             res.render('login', {error: 'Incorrect login details'});
         }
     });
+};
+
+exports.postRegisterRoute =(req, res) =>{
+    const {email, password} = req.body;
+    console.log(`${email} ${password}`);
+
+    const vals = [email, password];
+    const insertSQL = `INSERT INTO user (email, password) VALUES(?,?)`;
+    db.query(insertSQL, vals, (err, result) =>{
+        if(err){
+            console.error('Error inserting user', err);
+            res.status(500).send('Error regisering user');
+            return;
+        }
+        console.log('User registered Successfully hai');
+        res.render('view');
+    });
+    
 };
