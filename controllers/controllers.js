@@ -22,6 +22,23 @@ exports.getAddDrinkRoute =(req, res) =>{
     }
 };
 
+exports.postAddDrinkRoute =(req, res) =>{
+    const{ingredient} = req.body;
+    console.log(`${ingredient}`);
+
+    const vals = [ingredient];
+    const querySQL = `SELECT ingredientID FROM ingredient WHERE ingredient name = ?`;
+    db.query(querySQL, vals, (err, result) =>{
+        if(err){
+            console.error('Error finding ingredient', err);
+            res.status(500).send('Error finding ingredient');
+            return;
+        }
+        console.log('Ingredient found Successfully hai');
+        res.render('view');
+    });
+};
+
 exports.getCabinetRoute = (req, res) => {
     if(req.session.isLoggedIn == true) {
         const selectSQL = `SELECT ingredientName FROM user 
@@ -42,9 +59,7 @@ exports.getCabinetRoute = (req, res) => {
     }
 };
 
-// exports.getCabinetRoute =(req, res) => {
-//     res.render('cabinet');
-// };
+
 
 exports.getRegisterRoute =(req, res) => {
     res.render('register');
