@@ -13,4 +13,6 @@ router.get('/addDrink', controller.getAddDrinkRoute);
 router.post('/addDrink', controller.postAddDrinkRoute);
 router.post('/logout', controller.postLogoutRoute);
 router.post('/deleteIngredient', controller.postDeleteDrink);
+router.get('/cocktailSearch', controller.getCocktailSearchRoute);
+router.post('/cocktails', controller.postCocktailsRoute);
 module.exports = router;

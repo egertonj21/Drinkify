@@ -24,8 +24,65 @@ exports.getAddDrinkRoute =(req, res) =>{
     }
 };
 
+exports.getCocktailSearchRoute =(req, res) =>{
+    if(req.session.isLoggedIn == true) {
+        const querySQL = `SELECT * FROM ingredient`;
+
+        db.query(querySQL, (error, rows) => {
+            if (error) {
+                console.log(`error`);
+                res.status(500).send("Internal Server Error");
+                return;
+            }
+            console.log(rows);
+            res.render('cocktailSearch', { data: rows, role: req.session.role });
+        });
+    } else {
+        res.render('login', {error: 'You must first log in'});
+    }
+};
+
+const axios = require('axios');
+
+exports.postCocktailsRoute = (req, res) => {
+    const { ingredient } = req.body;
+
+    if (!ingredient) {
+        console.log('No ingredient selected');
+        res.redirect('cocktailSearch');
+        return;
+    }
+
+    console.log(`Ingredient selected: ${ingredient}`);
+
+    // Construct the URL
+    const apiUrl = `https://www.thecocktaildb.com/api/json/v1/1/filter.php?i=${ingredient}`;
+
+    // Fetch the JSON data using axios
+    axios.get(apiUrl)
+        .then(response => {
+            // Render the JSON data
+            res.render('cocktails', { data: response.data.drinks });
+        })
+        .catch(error => {
+            console.error('Error fetching data:', error);
+            res.status(500).send('Error fetching data');
+        });
+};
+
+
+
 exports.postAddDrinkRoute = (req, res) => {
     const { ingredient } = req.body;
+
+    // Check if ingredient field is empty
+    if (!ingredient) {
+        console.log('No ingredient selected');
+        // res.status(400).send('No ingredient selected');
+        res.redirect('addDrink');
+        return;
+    }
+
     console.log(`${ingredient}`);
 
     let userID, ingredientID;
@@ -39,7 +96,15 @@ exports.postAddDrinkRoute = (req, res) => {
             res.status(500).send('Error finding ingredient');
             return;
         }
-        console.log('Ingredient found Successfully hai');
+
+        // Check if ingredient exists in the database
+        if (result.length === 0) {
+            console.log('Ingredient not found');
+            res.status(404).send('Ingredient not found');
+            return;
+        }
+
+        console.log('Ingredient found Successfully');
         ingredientID = result[0].ingredientID;
 
         const userEmail = req.session.email;
@@ -51,7 +116,8 @@ exports.postAddDrinkRoute = (req, res) => {
                 res.status(500).send('Error finding user');
                 return;
             }
-            console.log('UserID found Successfully hai');
+
+            console.log('UserID found Successfully');
             userID = result[0].userID;
 
             const ids = [userID, ingredientID];
@@ -63,7 +129,7 @@ exports.postAddDrinkRoute = (req, res) => {
                     res.status(500).send('Error adding Ingredient');
                     return;
                 }
-                console.log('Ingredient added Successfully hai');
+                console.log('Ingredient added Successfully');
                 res.redirect('/cabinet');
             });
         });
@@ -71,35 +137,34 @@ exports.postAddDrinkRoute = (req, res) => {
 };
 
 
+
 exports.getCabinetRoute = (req, res) => {
-
-    
-    if(req.session.isLoggedIn == true) {
-        
-        const userEmail = req.session.email;
-        const selectSQL = `SELECT ingredientName FROM user 
-                           INNER JOIN useringredient ON user.userID = useringredient.userID 
-                           INNER JOIN ingredient ON useringredient.ingredientID = ingredient.ingredientID WHERE email=?`;
-
-        db.query(selectSQL, [userEmail], (error, rows) => {
-            if (error) {
-                console.log(error);
-                res.status(500).send("Internal Server Error");
-                return;
-            }
-            
-            if (rows.length === 0) {
-                // If no ingredients are found in the database
-                res.render('view', { error: 'No ingredients found in the cabinet' });
-            } else {
-                // Render the cabinet view with the ingredients data
-                res.render('cabinet', { data: rows, role: req.session.role });
-            }
-        });
-    } else {
+    // Check if user is logged in
+    if (!req.session.isLoggedIn) {
         // User is not logged in
-        res.render('cabinet', { error: 'You must first log in' });
+        return res.render('cabinet', { data: [], error: 'You must first log in' });
     }
+
+    // User is logged in, proceed to fetch cabinet data
+    const userEmail = req.session.email;
+    const selectSQL = `SELECT ingredientName FROM user 
+                       INNER JOIN useringredient ON user.userID = useringredient.userID 
+                       INNER JOIN ingredient ON useringredient.ingredientID = ingredient.ingredientID WHERE email=?`;
+
+    db.query(selectSQL, [userEmail], (error, rows) => {
+        if (error) {
+            console.log(error);
+            return res.status(500).send("Internal Server Error");
+        }
+
+        if (rows.length === 0) {
+            // If no ingredients are found in the database
+            return res.render('view', { error: 'No ingredients found in the cabinet' });
+        }
+
+        // Render the cabinet view with the ingredients data
+        res.render('cabinet', { data: rows, role: req.session.role, error: null });
+    });
 };
 
 
@@ -137,6 +202,8 @@ exports.postLoginRoute = (req, res) => { // Corrected route definition
     });
 };
 
+
+
 exports.postRegisterRoute =(req, res) =>{
     const {email, password} = req.body;
     console.log(`${email} ${password}`);
@@ -154,6 +221,7 @@ exports.postRegisterRoute =(req, res) =>{
     });
     
 };
+
 
 exports.postLogoutRoute = (req, res) => {
     req.session.destroy((error) => {

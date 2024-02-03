@@ -8,7 +8,7 @@
     <title>Drinks Cabinet</title>
 </head>
 <body>
-    
+        <%= error %>
         <table class="table table-striped">
             <thead>
                 <tr>
@@ -17,20 +17,24 @@
                 </tr>
             </thead>
             <tbody>
-                <% data.forEach(ingredient => { %>
-                    <% var ingredientName = ingredient.ingredientName;
-                    %>
-                <tr>
-                    <td scope ="row"><%= ingredientName %></td>
-                    <td>
-                        <form method="post" action="/deleteIngredient">
-                            <input type="hidden" name="ingredientName" value="<%= ingredientName %>">
-                            <button class="btn btn-danger">Delete</button>
-                        </form>
-                    </td>
-                </tr>
-            
-                <% }); %>
+                <% if (data && data.length > 0) { %>
+                    <% data.forEach(ingredient => { %>
+                        <% var ingredientName = ingredient.ingredientName; %>
+                        <tr>
+                            <td scope="row"><%= ingredientName %></td>
+                            <td>
+                                <form method="post" action="/deleteIngredient">
+                                    <input type="hidden" name="ingredientName" value="<%= ingredientName %>">
+                                    <button class="btn btn-danger">Delete</button>
+                                </form>
+                            </td>
+                        </tr>
+                    <% }); %>
+                <% } else { %>
+                    <tr>
+                        <td colspan="2">No ingredients found</td>
+                    </tr>
+                <% } %>
             </tbody>
         </table>
     

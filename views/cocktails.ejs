@@ -1,0 +1,32 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Cocktails</title>
+</head>
+<body>
+    <table class="table">
+        <thead>
+            <tr>
+                <th>Cocktail Name</th>
+                <th>Ingredients</th>
+            </tr>
+        </thead>
+        <tbody>
+            <% if (data && data.length > 0) { %>
+                <% data.forEach(cocktail => { %>
+                    <tr>
+                        <td scope="row"><%= cocktail.strDrink %></td>
+                        <td><img src="<%= cocktail.strDrinkThumb %>" alt="<%= cocktail.strDrink %>" style="width: 100px; height: auto;"></td>
+                    </tr>
+                <% }); %>
+            <% } else { %>
+                <tr>
+                    <td colspan="2">No ingredients found</td>
+                </tr>
+            <% } %>
+        </tbody>
+    </table>
+</body>
+</html>
