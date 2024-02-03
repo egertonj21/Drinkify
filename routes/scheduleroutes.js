@@ -12,4 +12,5 @@ router.get('/cabinet', controller.getCabinetRoute);
 router.get('/addDrink', controller.getAddDrinkRoute);
 router.post('/addDrink', controller.postAddDrinkRoute);
 router.post('/logout', controller.postLogoutRoute);
+router.post('/deleteIngredient', controller.postDeleteDrink);
 module.exports = router;

@@ -1,20 +1,18 @@
 const db = require('./../utils/dbconn');
 
 exports.getDefaultRoute = (req, res) =>{
-    res.render('login', {data: null});
+    res.render('login', {error:null});
 };
-exports.getLoginRoute = (req, res) =>{
-    res.render('login', {data: null});
-};
+
 
 
 exports.getAddDrinkRoute =(req, res) =>{
     if(req.session.isLoggedIn == true) {
         const querySQL = `SELECT * FROM ingredient`;
 
-        db.query(querySQL, (err, rows) => {
-            if (err) {
-                console.log(err);
+        db.query(querySQL, (error, rows) => {
+            if (error) {
+                console.log(`error`);
                 res.status(500).send("Internal Server Error");
                 return;
             }
@@ -35,9 +33,9 @@ exports.postAddDrinkRoute = (req, res) => {
     const vals = [ingredient];
     const querySQL = `SELECT ingredientID FROM ingredient WHERE ingredientName = ?`;
 
-    db.query(querySQL, vals, (err, result) => {
-        if (err) {
-            console.error('Error finding ingredient', err);
+    db.query(querySQL, vals, (error, result) => {
+        if (error) {
+            console.error('Error finding ingredient', error);
             res.status(500).send('Error finding ingredient');
             return;
         }
@@ -47,9 +45,9 @@ exports.postAddDrinkRoute = (req, res) => {
         const userEmail = req.session.email;
         const queryIDSQL = `SELECT userID FROM user WHERE email = ?`;
 
-        db.query(queryIDSQL, userEmail, (err, result) => {
-            if (err) {
-                console.error('Error finding user', err);
+        db.query(queryIDSQL, userEmail, (error, result) => {
+            if (error) {
+                console.error('Error finding user', error);
                 res.status(500).send('Error finding user');
                 return;
             }
@@ -59,9 +57,9 @@ exports.postAddDrinkRoute = (req, res) => {
             const ids = [userID, ingredientID];
             const insertSQL = 'INSERT INTO useringredient (userID, ingredientID) VALUES (?, ?)';
             
-            db.query(insertSQL, ids, (err, result) => {
-                if (err) {
-                    console.error('Error adding Ingredient', err);
+            db.query(insertSQL, ids, (error, result) => {
+                if (error) {
+                    console.error('Error adding Ingredient', error);
                     res.status(500).send('Error adding Ingredient');
                     return;
                 }
@@ -83,9 +81,9 @@ exports.getCabinetRoute = (req, res) => {
                            INNER JOIN useringredient ON user.userID = useringredient.userID 
                            INNER JOIN ingredient ON useringredient.ingredientID = ingredient.ingredientID WHERE email=?`;
 
-        db.query(selectSQL, [userEmail], (err, rows) => {
-            if (err) {
-                console.log(err);
+        db.query(selectSQL, [userEmail], (error, rows) => {
+            if (error) {
+                console.log(error);
                 res.status(500).send("Internal Server Error");
                 return;
             }
@@ -111,7 +109,7 @@ exports.getRegisterRoute =(req, res) => {
 };
 
 exports.getLoginRoute = (req, res) => { // Corrected route definition
-    res.render('login', {error: ''});
+    res.render('login', {error: null});
 };
 
 exports.postLoginRoute = (req, res) => { // Corrected route definition
@@ -120,9 +118,9 @@ exports.postLoginRoute = (req, res) => { // Corrected route definition
 
     const vals = [email, password];
     const querySQL = `SELECT email, password FROM user WHERE email = ? AND password = ?`;
-    db.query(querySQL, vals, (err, rows) => {
-        if (err) {
-            console.log(err);
+    db.query(querySQL, vals, (error, rows) => {
+        if (error) {
+            console.log(error);
             res.status(500).send("Internal Server Error");
             return;
         }
@@ -131,7 +129,7 @@ exports.postLoginRoute = (req, res) => { // Corrected route definition
             const session = req.session;
             session.isLoggedIn = true;
             session.email = rows[0].email;
-            res.render('view');
+            res.render('view', {error: null});
         } else {
             console.log('Failed login');
             res.render('login', {error: 'Incorrect login details'});
@@ -145,9 +143,9 @@ exports.postRegisterRoute =(req, res) =>{
 
     const vals = [email, password];
     const insertSQL = `INSERT INTO user (email, password) VALUES(?,?)`;
-    db.query(insertSQL, vals, (err, result) =>{
-        if(err){
-            console.error('Error inserting user', err);
+    db.query(insertSQL, vals, (error, result) =>{
+        if(error){
+            console.error('Error inserting user', error);
             res.status(500).send('Error regisering user');
             return;
         }
@@ -158,9 +156,9 @@ exports.postRegisterRoute =(req, res) =>{
 };
 
 exports.postLogoutRoute = (req, res) => {
-    req.session.destroy((err) => {
-        if (err) {
-            console.error('Error destroying session:', err);
+    req.session.destroy((error) => {
+        if (error) {
+            console.error('Error destroying session:', error);
             res.status(500).send('Error logging out');
         } else {
             console.log('Logged out successfully');
@@ -168,3 +166,53 @@ exports.postLogoutRoute = (req, res) => {
         }
     });
 };
+
+exports.postDeleteDrink = (req, res) => {
+    const { ingredientName } = req.body;
+    console.log(`${ingredientName}`);
+
+    const selectIngredientQuery = 'SELECT ingredientID FROM ingredient WHERE ingredientName = ?';
+    db.query(selectIngredientQuery, [ingredientName], (error, results) => {
+        if (error) {
+            console.error('Error finding ingredient', error);
+            return res.status(500).send('Error finding ingredient');
+        }
+
+        if (results.length === 0) {
+            
+            return res.status(404).send('Ingredient not found');
+        }
+
+        const ingredientID = results[0].ingredientID;
+
+        const selectUserIDQuery = 'SELECT userID FROM user WHERE email = ?';
+        const userEmail = req.session.email;
+
+        db.query(selectUserIDQuery, [userEmail], (error, results) => {
+            if (error) {
+                console.error('Error finding user', error);
+                return res.status(500).send('Error finding user');
+            }
+
+            if (results.length === 0) {
+                return res.status(404).send('User not found');
+            }
+
+            const userID = results[0].userID;
+
+            const deleteQuery = 'DELETE FROM useringredient WHERE ingredientID = ? AND userID = ?';
+            const deleteParams = [ingredientID, userID];
+
+            db.query(deleteQuery, deleteParams, (error, results) => {
+                if (error) {
+                    console.error('Error deleting ingredient', error);
+                    return res.status(500).send('Error deleting ingredient');
+                }
+
+                console.log('Ingredient Deleted Successfully');
+                res.redirect('/cabinet');
+            });
+        });
+    });
+};
+
