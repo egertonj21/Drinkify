@@ -15,4 +15,6 @@ router.post('/logout', controller.postLogoutRoute);
 router.post('/deleteIngredient', controller.postDeleteDrink);
 router.get('/cocktailSearch', controller.getCocktailSearchRoute);
 router.post('/cocktails', controller.postCocktailsRoute);
+router.post('/cocktailDetails', controller.postCocktailDetailsRoute);
+router.post('/randomCocktail', controller.postRandomCocktailRoute);
 module.exports = router;

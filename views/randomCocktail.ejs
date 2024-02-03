@@ -1,0 +1,37 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Random Cocktail</title>
+</head>
+<body>
+    <table class="table">
+        <thead>
+            <tr>
+                <th>Cocktail Name</th>
+                <th>Image</th>
+                <th>More Details</th>
+                <th hidden="true">Cocktail ID</th>
+            </tr>
+        </thead>
+        <tbody>
+            <% if (randomCocktail) { %>
+                <tr>
+                    <td scope="row"><%= randomCocktail.strDrink %></td>
+                    <td><img src="<%= randomCocktail.strDrinkThumb %>" alt="<%= randomCocktail.strDrink %>" style="width: 100px; height: auto;"></td>
+                    <form method="post" action="cocktailDetails">
+                        <input type ="hidden" name ="idDrink" value ="<%= randomCocktail.idDrink %>">
+                        <td><button>More Details</button></td>
+                    </form>
+                    <td hidden="true" name="idDrink"><%= randomCocktail.idDrink %></td>
+                </tr>
+            <% } else { %>
+                <tr>
+                    <td colspan="5">No cocktail found</td>
+                </tr>
+            <% } %>
+        </tbody>
+    </table>
+</body>
+</html>

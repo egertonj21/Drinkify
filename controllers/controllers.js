@@ -34,7 +34,7 @@ exports.getCocktailSearchRoute =(req, res) =>{
                 res.status(500).send("Internal Server Error");
                 return;
             }
-            console.log(rows);
+            // console.log(rows);
             res.render('cocktailSearch', { data: rows, role: req.session.role });
         });
     } else {
@@ -46,7 +46,7 @@ const axios = require('axios');
 
 exports.postCocktailsRoute = (req, res) => {
     const { ingredient } = req.body;
-
+    
     if (!ingredient) {
         console.log('No ingredient selected');
         res.redirect('cocktailSearch');
@@ -66,6 +66,59 @@ exports.postCocktailsRoute = (req, res) => {
         })
         .catch(error => {
             console.error('Error fetching data:', error);
+            res.status(500).send('Error fetching data');
+        });
+};
+
+exports.postRandomCocktailRoute = (req, res) => {
+    const { ingredient } = req.body;
+
+    // Check if the ingredient is provided
+    if (!ingredient) {
+        res.status(400).send('Ingredient not provided');
+        return;
+    }
+
+    // Construct the URL to fetch a random cocktail with the specified ingredient
+    const apiUrl = `https://www.thecocktaildb.com/api/json/v1/1/filter.php?i=${ingredient}`;
+
+    // Fetch the list of cocktails with the specified ingredient
+    axios.get(apiUrl)
+        .then(response => {
+            const cocktails = response.data.drinks;
+            
+            // Check if any cocktails are found
+            if (!cocktails || cocktails.length === 0) {
+                res.status(404).send(`No cocktails found with ${ingredient}`);
+                return;
+            }
+
+            // Choose a random cocktail from the list
+            const randomIndex = Math.floor(Math.random() * cocktails.length);
+            const randomCocktail = cocktails[randomIndex];
+
+            // Render the cocktail details
+            res.render('randomCocktail', { randomCocktail: randomCocktail });
+        })
+        .catch(error => {
+            console.error('Error fetching data:', error);
+            res.status(500).send('Error fetching data');
+        });
+};
+
+exports.postCocktailDetailsRoute = (req, res) => {
+    const { idDrink } = req.body;
+    const apiUrl = `https://www.thecocktaildb.com/api/json/v1/1/lookup.php?i=${idDrink}`;
+    axios.get(apiUrl)
+        .then(response => {
+            if (response.data && response.data.drinks && response.data.drinks.length > 0) {
+                res.render('cocktailDetail', { data: response.data.drinks });
+            } else {
+                res.status(404).send('Cocktail not found');
+            }
+        })
+        .catch(error => {
+            console.error('Error fetching data', error);
             res.status(500).send('Error fetching data');
         });
 };
@@ -148,9 +201,8 @@ exports.getCabinetRoute = (req, res) => {
     // User is logged in, proceed to fetch cabinet data
     const userEmail = req.session.email;
     const selectSQL = `SELECT ingredientName FROM user 
-                       INNER JOIN useringredient ON user.userID = useringredient.userID 
-                       INNER JOIN ingredient ON useringredient.ingredientID = ingredient.ingredientID WHERE email=?`;
-
+    INNER JOIN useringredient ON user.userID = useringredient.userID 
+    INNER JOIN ingredient ON useringredient.ingredientID = ingredient.ingredientID WHERE email=?`;
     db.query(selectSQL, [userEmail], (error, rows) => {
         if (error) {
             console.log(error);
@@ -173,11 +225,11 @@ exports.getRegisterRoute =(req, res) => {
     res.render('register');
 };
 
-exports.getLoginRoute = (req, res) => { // Corrected route definition
+exports.getLoginRoute = (req, res) => {
     res.render('login', {error: null});
 };
 
-exports.postLoginRoute = (req, res) => { // Corrected route definition
+exports.postLoginRoute = (req, res) => {
     const {email, password} = req.body;
     console.log(`${email} ${password}`);
 

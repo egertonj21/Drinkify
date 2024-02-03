@@ -13,6 +13,8 @@
             <thead>
                 <tr>
                     <th scope="col">Drink Type</th>
+                    <th scope="col">Cocktail</th>
+                    <th scope="col">Random Cocktail</th>
                     <th scope="col">Delete</th>
                 </tr>
             </thead>
@@ -22,6 +24,14 @@
                         <% var ingredientName = ingredient.ingredientName; %>
                         <tr>
                             <td scope="row"><%= ingredientName %></td>
+                            <form method="post" action="cocktails">
+                                <input type="hidden" name="ingredient" value="<%= ingredientName %>">
+                                <td><button>Make Cocktail</button></td>
+                            </form>
+                            <form method="post" action="randomCocktail">
+                                <input type="hidden" name="ingredient" value="<%= ingredientName %>">
+                                <td><button>Make Cocktail</button></td>
+                            </form>
                             <td>
                                 <form method="post" action="/deleteIngredient">
                                     <input type="hidden" name="ingredientName" value="<%= ingredientName %>">

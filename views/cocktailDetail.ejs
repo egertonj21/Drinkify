@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Cocktails</title>
+    <title>Drink Details</title>
 </head>
 <body>
     <table class="table">
@@ -11,7 +11,8 @@
             <tr>
                 <th>Cocktail Name</th>
                 <th>Image</th>
-                <th>More Details</th>
+                <th>Ingredients</th>
+                <th>Method</th>
                 <th hidden="true">Cocktail ID</th>
             </tr>
         </thead>
@@ -21,10 +22,18 @@
                     <tr>
                         <td scope="row"><%= cocktail.strDrink %></td>
                         <td><img src="<%= cocktail.strDrinkThumb %>" alt="<%= cocktail.strDrink %>" style="width: 100px; height: auto;"></td>
-                        <form method="post" action="cocktailDetails">
-                            <input type ="hidden" name ="idDrink" value ="<%= cocktail.idDrink %>">
-                            <td><button>More Details</button></td>
-                        </form>
+                        <td>
+                            <ul>
+                                <% for (let i = 1; i <= 15; i++) { %>
+                                    <% const ingredient = cocktail['strIngredient' + i]; %>
+                                    <% const measure = cocktail['strMeasure' + i]; %>
+                                    <% if (ingredient && measure) { %>
+                                        <li><%= measure %> <%= ingredient %></li>
+                                    <% } %>
+                                <% } %>
+                            </ul>
+                        </td>
+                        <td><%= cocktail.strInstructions %></td>
                         <td hidden="true" name="idDrink"><%= cocktail.idDrink %></td>
                     </tr>
                 <% }); %>
