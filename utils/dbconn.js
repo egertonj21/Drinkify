@@ -1,6 +1,15 @@
-const mysql = require('mysql2');
+// const mysql = require('mysql2');
+const mysqlPromise = require('mysql2/promise');
 
-const db = mysql.createConnection({
+// const dbConnection = mysql.createConnection({
+//     host: 'localhost',
+//     user: 'root',
+//     password: '',
+//     port: '3306',
+//     database: 'drink'
+// });
+
+const pool = mysqlPromise.createPool({
     host: 'localhost',
     user: 'root',
     password: '',
@@ -8,11 +17,11 @@ const db = mysql.createConnection({
     database: 'drink'
 });
 
-db.connect((err) => {
-    if(err){
-        throw err;
-    }
-    console.log('Database connection successful')
-})
+// dbConnection.connect((err) => {
+//     if (err) {
+//         throw err;
+//     }
+//     console.log('Database connection successful');
+// });
 
-module.exports = db;
+module.exports = pool;
