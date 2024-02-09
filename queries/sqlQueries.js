@@ -1,4 +1,4 @@
-// const db = require('./../utils/dbconn');
+
 const pool = require('./../utils/dbconn');
 module.exports = {
 

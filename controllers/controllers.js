@@ -1,4 +1,4 @@
-const db = require('./../utils/dbconn');
+const pool = require('./../utils/dbconn');
 const sqlQueries = require('./../queries/sqlQueries');
 
 exports.getDefaultRoute = (req, res) =>{
@@ -320,6 +320,8 @@ exports.postRegisterRoute =(req, res) =>{
     sqlQueries.insertUser(email, password)
         .then(result => {
             console.log('User registered successfully');
+            req.session.isLoggedIn = true;
+            req.session.email = email;
             res.render('view', {error:null});
         })
         .catch(error => {

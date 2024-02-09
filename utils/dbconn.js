@@ -17,11 +17,14 @@ const pool = mysqlPromise.createPool({
     database: 'drink'
 });
 
-// dbConnection.connect((err) => {
-//     if (err) {
-//         throw err;
-//     }
-//     console.log('Database connection successful');
-// });
+pool.query('SELECT * FROM user')
+    .then(([rows, fields]) => {
+        console.log('Database connection successful');
+        console.log(rows);
+    })
+    .catch(err => {
+        console.error('Error connecting to database:', err);
+    });
+
 
 module.exports = pool;
