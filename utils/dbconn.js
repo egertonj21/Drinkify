@@ -1,15 +1,6 @@
-// const mysql = require('mysql2');
-const mysqlPromise = require('mysql2/promise');
+const mysql = require('mysql2');
 
-// const dbConnection = mysql.createConnection({
-//     host: 'localhost',
-//     user: 'root',
-//     password: '',
-//     port: '3306',
-//     database: 'drink'
-// });
-
-const pool = mysqlPromise.createPool({
+const db = mysql.createConnection({
     host: 'localhost',
     user: 'root',
     password: '',
@@ -17,14 +8,11 @@ const pool = mysqlPromise.createPool({
     database: 'drink'
 });
 
-pool.query('SELECT * FROM user')
-    .then(([rows, fields]) => {
-        console.log('Database connection successful');
-        console.log(rows);
-    })
-    .catch(err => {
-        console.error('Error connecting to database:', err);
-    });
+db.connect((err) => {
+    if(err){
+        throw err;
+    }
+    console.log('Database connection successful')
+})
 
-
-module.exports = pool;
+module.exports = db;
